@@ -2,6 +2,34 @@
 
 Checks for broken symbolic links.
 
+This script is optimized for large codebases as well as small, incremental checks.
+
+Speed comparisons:
+
+1,000 symlinks, 50,000 files.
+
+```
+$ fd --type symlink --exec sh -c 'test -e "$0" || echo "$0"'
+
+real    0m0.334s
+
+$ time check-symlinks
+
+real    0m0.371s
+
+$ git ls-files | xargs pre-commit/pre_commit_hooks/check_symlinks.py
+
+real    0m1.008s
+
+$ while read file; do test -e "$test"; done < <(git ls-files)
+
+real    0m1.461s
+
+$ find . -type l -not -path data ! -exec test -e {} \; -print0 | xargs --no-run-if-empty git ls-files
+
+real    0m1.492s
+```
+
 ## Install
 
 ```shell
