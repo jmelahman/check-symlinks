@@ -1,9 +1,11 @@
+extern crate crossbeam;
+
+use crossbeam::channel;
 use std::env;
 use std::fs;
 use std::io::Error;
 use std::path::{Path, PathBuf};
 use std::process::ExitCode;
-use std::sync::mpsc::channel;
 use threadpool::ThreadPool;
 use ignore::WalkBuilder;
 
@@ -37,15 +39,16 @@ fn main() -> ExitCode {
     let mut exit_code = 0;
     let pool = ThreadPool::new(num_cpus::get());
 
-    let (tx, rx) = channel();
+    let (tx, rx) = channel::unbounded();
 
     if !args.is_empty() {
         for filename in args {
+
             let path = Path::new(&filename).to_owned();
             let tx = tx.clone();
             pool.execute(move || {
                 let errors = lint(path);
-                tx.send(errors).expect("Could not send data!");
+                tx.send(errors).unwrap();
             });
         }
     } else {
@@ -64,9 +67,7 @@ fn main() -> ExitCode {
     }
     drop(tx);
     for t in rx.iter() {
-        let Ok(passed) = t else {
-            todo!();
-        };
+        let passed = t.unwrap();
         if !passed {
             exit_code = 1;
         }
