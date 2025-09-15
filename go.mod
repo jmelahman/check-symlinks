@@ -3,7 +3,7 @@ module github.com/jmelahman/check-symlinks
 go 1.24.4
 
 require (
-	github.com/charlievieth/fastwalk v1.0.12
+	github.com/charlievieth/fastwalk v1.0.14
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.9.1
 )
